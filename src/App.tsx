@@ -1,25 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
+import { Outlet } from "react-router-dom";
+import Loader from "./app/components/Loader";
+import "react-toastify/dist/ReactToastify.css";
+import { useAppDispatch, useAppSelector } from "./app/store/ConfigureStore";
+import { fetchUserFromToken } from "./pages/account/AccountSlice";
+import GoogleMapsWrapper from "./app/components/GoogleMapsWrapper";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  const [loading, setLoading] = useState(true);
+  const user = useAppSelector((state) => state.account.user);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(fetchUserFromToken()).finally(() => setLoading(false));
+  }, [dispatch, user?.token]);
+
+  return loading ? (
+    <Loader />
+  ) : (
+    <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        style={{ zIndex: 999999 }}
+      />
+      <GoogleMapsWrapper>
+        <Outlet />
+      </GoogleMapsWrapper>
+    </>
   );
 }
 
