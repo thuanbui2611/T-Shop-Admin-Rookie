@@ -89,7 +89,8 @@ const Brand = {
 };
 
 const ModelProduct = {
-  all: () => requests.get("api/model"),
+  // all: () => requests.get("api/model"),
+  list: (params: URLSearchParams) => requests.get("api/model", params),
   details: (id: string) => requests.get(`api/model/${id}`),
   create: (values: {}) => requests.post("api/model", values),
   update: (id: string, values: {}) => requests.put(`api/model/${id}`, values),
@@ -105,7 +106,8 @@ const Color = {
 };
 
 const Product = {
-  all: () => requests.get(`api/product`),
+  // all: () => requests.get(`api/product`),
+  list: (params: URLSearchParams) => requests.get("api/product", params),
   details: (id: string) => requests.get(`api/product/${id}`),
   create: (values: {}) => requests.post("api/product", values),
   update: (id: string, values: {}) => requests.put(`api/product/${id}`, values),
@@ -113,7 +115,8 @@ const Product = {
 };
 
 const Type = {
-  all: () => requests.get("api/type"),
+  // all: () => requests.get("api/type"),
+  list: (params: URLSearchParams) => requests.get("api/type", params),
   details: (id: string) => requests.get(`api/type/${id}`),
   create: (values: {}) => requests.post("api/type", values),
   update: (id: string, values: {}) =>
