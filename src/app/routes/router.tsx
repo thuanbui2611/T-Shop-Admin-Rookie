@@ -9,6 +9,7 @@ import ServerErrors from "../errors/ServerErrors";
 import Dashboard from "../../pages/dashboard/Dashboard";
 import SignIn from "../../pages/account/SignIn";
 import TypePage from "../../pages/type";
+import BrandPage from "../../pages/brand";
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
               { path: "model-products", element: <ModelVehicle /> },
               { path: "colors", element: <ColorPage /> },
               { path: "types", element: <TypePage /> },
+              { path: "brands", element: <BrandPage /> },
             ],
           },
         ],
