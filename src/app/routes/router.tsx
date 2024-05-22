@@ -10,6 +10,7 @@ import Dashboard from "../../pages/dashboard/Dashboard";
 import SignIn from "../../pages/account/SignIn";
 import TypePage from "../../pages/type";
 import BrandPage from "../../pages/brand";
+import ProductsPage from "../../pages/product";
 
 export const router = createBrowserRouter([
   {
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
               { path: "colors", element: <ColorPage /> },
               { path: "types", element: <TypePage /> },
               { path: "brands", element: <BrandPage /> },
+              { path: "products", element: <ProductsPage /> },
             ],
           },
         ],

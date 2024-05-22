@@ -6,6 +6,7 @@ import { TypeSlice } from "../../pages/type/TypeSlice";
 import { AccountSlice } from "../../pages/account/AccountSlice";
 import { FilterSlice } from "../../pages/filter/FilterSlice";
 import { BrandSlice } from "../../pages/brand/BrandSlice";
+import { ProductSlice } from "../../pages/product/ProductSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     color: ColorSlice.reducer,
     type: TypeSlice.reducer,
     brand: BrandSlice.reducer,
+    product: ProductSlice.reducer,
     filter: FilterSlice.reducer,
   },
 });
