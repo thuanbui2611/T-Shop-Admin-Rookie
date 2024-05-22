@@ -1,15 +1,14 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 import App from "../../App";
 import DefaultLayout from "../layout/DefaulLayout";
-import Brand from "../../pages/brand";
-import SignIn from "../../pages/account/SignIn";
-import ModelVehicle from "../../pages/modelVehicle";
-import VehiclesPage from "../../pages/products";
+import ModelVehicle from "../../pages/modelProduct";
 import ColorPage from "../../pages/color";
 import NotFound from "../errors/NotFound";
 import RequireAuth from "./RequireAuth";
 import ServerErrors from "../errors/ServerErrors";
 import Dashboard from "../../pages/dashboard/Dashboard";
+import SignIn from "../../pages/account/SignIn";
+import TypePage from "../../pages/type";
 
 export const router = createBrowserRouter([
   {
@@ -24,10 +23,9 @@ export const router = createBrowserRouter([
             children: [
               { path: "", element: <Dashboard /> },
               { path: "dashboard", element: <Dashboard /> },
-              { path: "brands", element: <Brand /> },
               { path: "model-products", element: <ModelVehicle /> },
               { path: "colors", element: <ColorPage /> },
-              { path: "vehicles", element: <VehiclesPage /> },
+              { path: "types", element: <TypePage /> },
             ],
           },
         ],

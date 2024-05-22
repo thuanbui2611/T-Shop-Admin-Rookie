@@ -77,11 +77,12 @@ const requests = {
 
 const Account = {
   login: (values: {}) => requests.post("api/authentication/register", values),
-  Register: (values: {}) => requests.post("api/authentication/login", values),
+  register: (values: {}) => requests.post("api/authentication/login", values),
 };
 
 const Brand = {
   all: () => requests.get("api/brand"),
+  list: (params: URLSearchParams) => requests.get("api/brand/list", params),
   details: (id: string) => requests.get(`api/brand/${id}`),
   create: (values: {}) => requests.post("api/brand", values),
   update: (id: string, values: {}) => requests.put(`api/brand/${id}`, values),
@@ -89,8 +90,8 @@ const Brand = {
 };
 
 const ModelProduct = {
-  // all: () => requests.get("api/model"),
-  list: (params: URLSearchParams) => requests.get("api/model", params),
+  all: () => requests.get("api/model"),
+  list: (params: URLSearchParams) => requests.get("api/model/list", params),
   details: (id: string) => requests.get(`api/model/${id}`),
   create: (values: {}) => requests.post("api/model", values),
   update: (id: string, values: {}) => requests.put(`api/model/${id}`, values),
@@ -106,7 +107,6 @@ const Color = {
 };
 
 const Product = {
-  // all: () => requests.get(`api/product`),
   list: (params: URLSearchParams) => requests.get("api/product", params),
   details: (id: string) => requests.get(`api/product/${id}`),
   create: (values: {}) => requests.post("api/product", values),
@@ -115,8 +115,8 @@ const Product = {
 };
 
 const Type = {
-  // all: () => requests.get("api/type"),
-  list: (params: URLSearchParams) => requests.get("api/type", params),
+  all: () => requests.get("api/type"),
+  list: (params: URLSearchParams) => requests.get("api/type/list", params),
   details: (id: string) => requests.get(`api/type/${id}`),
   create: (values: {}) => requests.post("api/type", values),
   update: (id: string, values: {}) =>

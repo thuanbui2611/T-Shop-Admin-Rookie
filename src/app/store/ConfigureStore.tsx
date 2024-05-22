@@ -1,21 +1,19 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
-import { BrandSlice } from "../../pages/brand/BrandSlice";
-import { AccountSlice } from "../../pages/account/AccountSlice";
-import { ModelVehicleSlice } from "../../pages/modelVehicle/ModelVehicleSlice";
-import { VehicleSlice } from "../../pages/products/VehicleSlice";
+import { ModelProductSlice } from "../../pages/modelProduct/ModelProductSlice";
 import { ColorSlice } from "../../pages/color/ColorSlice";
-import { FilterSlice } from "../../pages/filter/FilterSlice";
 import { DashboardSlice } from "../../pages/dashboard/DashboardSlice";
+import { TypeSlice } from "../../pages/type/TypeSlice";
+import { AccountSlice } from "../../pages/account/AccountSlice";
+import { FilterSlice } from "../../pages/filter/FilterSlice";
 
 export const store = configureStore({
   reducer: {
-    brand: BrandSlice.reducer,
     account: AccountSlice.reducer,
-    modelProduct: ModelVehicleSlice.reducer,
-    vehicle: VehicleSlice.reducer,
+    modelProduct: ModelProductSlice.reducer,
     color: ColorSlice.reducer,
     dashboard: DashboardSlice.reducer,
+    type: TypeSlice.reducer,
     filter: FilterSlice.reducer,
   },
 });

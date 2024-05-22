@@ -5,7 +5,6 @@ import Loader from "./app/components/Loader";
 import "react-toastify/dist/ReactToastify.css";
 import { useAppDispatch, useAppSelector } from "./app/store/ConfigureStore";
 import { fetchUserFromToken } from "./pages/account/AccountSlice";
-import GoogleMapsWrapper from "./app/components/GoogleMapsWrapper";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -32,9 +31,7 @@ function App() {
         theme="colored"
         style={{ zIndex: 999999 }}
       />
-      <GoogleMapsWrapper>
-        <Outlet />
-      </GoogleMapsWrapper>
+      <Outlet />
     </>
   );
 }
