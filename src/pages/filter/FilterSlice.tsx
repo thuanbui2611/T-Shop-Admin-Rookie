@@ -28,7 +28,7 @@ const initialState: FilterState = {
   modelProductLoading: false,
 };
 
-export const getBrandsAsync = createAsyncThunk<BrandOfModel[]>(
+export const getBrandsAsync = createAsyncThunk<Brand[]>(
   "filter/getBrandsAsync",
   async (_, thunkAPI) => {
     try {
