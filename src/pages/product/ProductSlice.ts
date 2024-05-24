@@ -64,12 +64,23 @@ import {
       return ThunkAPI.rejectWithValue({ error: error.data });
     }
   });
-  
-  export const updateProductAsync = createAsyncThunk<Product, FieldValues>(
-    "product/updateProductAsync",
+  export const addProductAsync = createAsyncThunk<Product, FormData>(
+    "product/addProductAsync",
     async (data, ThunkAPI) => {
       try {
-        const response = await agent.Product.update(data.id, data);
+        const response = await agent.Product.create(data);
+        return response;
+      } catch (error: any) {
+        return ThunkAPI.rejectWithValue({ error: error.data });
+      }
+    }
+  );
+
+  export const updateProductAsync = createAsyncThunk<Product, {formData: FormData, id: string}>(
+    "product/updateProductAsync",
+    async ({formData, id}, ThunkAPI) => {
+      try {
+        const response = await agent.Product.update(id, formData);
         return response;
       } catch (error: any) {
         return ThunkAPI.rejectWithValue({ error: error.data });
@@ -152,7 +163,12 @@ import {
           console.log("Get products rejected: ", action);
           state.productLoaded = false;
         });
-  
+
+      builder.addCase(addProductAsync.fulfilled, (state, action) => {
+        toast.success("Add product successfully!");
+        productsAdapter.addOne(state, action.payload);
+      });
+
       builder.addCase(updateProductAsync.fulfilled, (state, action) => {
         toast.success("Update product successfully!");
         productsAdapter.upsertOne(state, action.payload);

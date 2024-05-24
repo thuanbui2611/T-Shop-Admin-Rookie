@@ -28,6 +28,9 @@ import {
 } from "../filter/FilterSlice";
 import { Type } from "../../app/models/Type";
 import { Color } from "../../app/models/Color";
+import ProductForm from "./ProductForm";
+import useDebounce from "../../app/hooks/useDebounce";
+import ProductDetails from "./ProductDetails";
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams({});
@@ -110,7 +113,7 @@ export default function ProductsPage() {
           typesFilter.includes(type.name)
         );
         setSelectedTypes(typesSelected);
-        dispatch(setProductParams({ Types: typesFilter }));
+        dispatch(setProductParams({ types: typesFilter }));
       } else {
         setSearchParams((prev) => {
           prev.delete("Types");
@@ -129,14 +132,13 @@ export default function ProductsPage() {
           modelsFilter.includes(model.name)
         );
         setSelectedModels(modelsSelected);
-        dispatch(setProductParams({ Models: modelsFilter }));
+        dispatch(setProductParams({ models: modelsFilter }));
       } else {
         setSearchParams((prev) => {
           prev.delete("Models");
           return prev;
         });
       }
-
       //Brand filter
       if (brandsParam !== "") {
         let brandsFilter: string[] = [];
@@ -149,7 +151,7 @@ export default function ProductsPage() {
           brandsFilter.includes(brand.name)
         );
         setSelectedBrands(brandsSelected);
-        dispatch(setProductParams({ Brands: brandsFilter }));
+        dispatch(setProductParams({ brands: brandsFilter }));
       } else {
         setSearchParams((prev) => {
           prev.delete("Brands");
@@ -169,7 +171,7 @@ export default function ProductsPage() {
           colorsFilter.includes(color.name)
         );
         setSelectedColors(colorsSelected);
-        dispatch(setProductParams({ Colors: colorsFilter }));
+        dispatch(setProductParams({ colors: colorsFilter }));
       } else {
         setSearchParams((prev) => {
           prev.delete("Colors");
@@ -237,19 +239,18 @@ export default function ProductsPage() {
   }, [pageSize, dispatch]);
   //End of get valueFilter from url params and set selected
 
+  //Search
+  //handle get search from params
   useEffect(() => {
     if (searchQueryParam) {
-      const querySearch = searchQueryParam.trim();
-      setSearchQuery(querySearch);
-      dispatch(setProductParams({ Search: querySearch }));
-    } else {
-      if (productParams.search) {
-        setSearchQuery(productParams.search);
-      } else {
-        dispatch(setProductParams({ Search: undefined }));
-      }
+      handleSearch(searchQueryParam);
     }
-  }, [searchQueryParam, dispatch]);
+  }, []);
+  //handle debounce search when input
+  var debouncedSearchQuery = useDebounce(searchQuery, 300);
+  useEffect(() => {
+    handleSearch();
+  }, [debouncedSearchQuery, dispatch]);
 
   //Starting filter
   useEffect(() => {
@@ -292,7 +293,7 @@ export default function ProductsPage() {
         prev.delete("Types");
         return prev;
       });
-      dispatch(setProductParams({ Types: [] }));
+      dispatch(setProductParams({ types: [] }));
       setSelectedTypes([]);
     }
     setSearchParams((prev) => {
@@ -324,7 +325,7 @@ export default function ProductsPage() {
         prev.delete("Models");
         return prev;
       });
-      dispatch(setProductParams({ Models: [] }));
+      dispatch(setProductParams({ models: [] }));
       setSelectedModels([]);
     }
     setIsStartFilter(true);
@@ -356,7 +357,7 @@ export default function ProductsPage() {
         prev.delete("Brands");
         return prev;
       });
-      dispatch(setProductParams({ Brands: [] }));
+      dispatch(setProductParams({ brands: [] }));
       setSelectedBrands([]);
     }
     setIsStartFilter(true);
@@ -388,7 +389,7 @@ export default function ProductsPage() {
         prev.delete("Colors");
         return prev;
       });
-      dispatch(setProductParams({ Colors: [] }));
+      dispatch(setProductParams({ colors: [] }));
       setSelectedColors([]);
     }
     setIsStartFilter(true);
@@ -410,32 +411,36 @@ export default function ProductsPage() {
     setIsStartFilter(true);
   };
   // End of handle change filter
-  const handleSearch = (isReset?: boolean) => {
-    if (isReset) {
+  const handleSearch = (value?: string) => {
+    var searchQuery = "";
+    if (value) {
+      searchQuery = value.trim();
+      setSearchQuery(searchQuery);
+    }
+
+    if (value === undefined) {
+      searchQuery = debouncedSearchQuery.trim();
+    }
+    setSearchParams((prev) => {
+      prev.set("Search", searchQuery.trim());
+      return prev;
+    });
+
+    dispatch(setProductParams({ search: searchQuery }));
+
+    if (!searchQuery) {
       setSearchParams((prev) => {
         prev.delete("Search");
         return prev;
       });
-      setSearchQuery("");
-      dispatch(setProductParams({ Search: undefined }));
-      return;
     }
-    if (searchQuery) {
-      setSearchParams((prev) => {
-        prev.set("Search", searchQuery.trim());
-        return prev;
-      });
-    } else {
-      setSearchParams((prev) => {
-        prev.delete("Search");
-        return prev;
-      });
-    }
+
     setSearchParams((prev) => {
       prev.set("pageNumber", "1");
       return prev;
     });
   };
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       handleSearch();
@@ -477,7 +482,7 @@ export default function ProductsPage() {
   };
 
   async function handleDeleteProduct(productDeleted: Product) {
-    const response = await dispatch(deleteProductAsync(productDeleted.id));
+    await dispatch(deleteProductAsync(productDeleted.id));
   }
 
   const cancelEditForm = () => {
@@ -502,6 +507,11 @@ export default function ProductsPage() {
 
   const cancelConfirmDeleteDialog = () => setConfirmDeleteDiaglog(false);
 
+  const handleLockVehicle = async (product: Product) => {
+    // dispatch(updateIsLockProduct(product));
+    // await dispatch(lockProductAsync(product.id));
+  };
+
   if (!metaData) {
     return <Loader />;
   } else
@@ -520,12 +530,9 @@ export default function ProductsPage() {
                   className="bg-gray-50 border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[200px] p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Search..."
                   value={searchQuery}
+                  maxLength={30}
                   onChange={(e) => {
-                    if (e.target.value) {
-                      setSearchQuery(e.target.value);
-                    } else {
-                      handleSearch(true);
-                    }
+                    setSearchQuery(e.target.value);
                   }}
                   onKeyDown={handleKeyDown}
                 />
@@ -602,8 +609,28 @@ export default function ProductsPage() {
           </div>
           <div className="flex overflow-auto scrollbar max-h-[333px] justify-center items-center">
             <div className="flex flex-wrap space-x-2 space-y-2 justify-start items-center mb-2 w-full">
-              <div className="max-w-[25%] min-w-[220px] flex-1  ml-2 mt-2">
-                {/* Filter city */}
+              <div className="max-w-[25%] min-w-[170px] flex-1  ml-2 mt-2">
+                {/* Filter by types */}
+                {typeLoading ? (
+                  <LoaderButton />
+                ) : (
+                  <Autocomplete
+                    className="bg-white rounded-md"
+                    fullWidth={true}
+                    size="small"
+                    multiple={true}
+                    disablePortal
+                    value={selectedTypes}
+                    options={types}
+                    getOptionLabel={(option) => option.name}
+                    onChange={(event, newValue) =>
+                      handleSelectTypeChange(event, newValue)
+                    }
+                    renderInput={(params) => (
+                      <TextField {...params} placeholder="Type" />
+                    )}
+                  />
+                )}
               </div>
               <div className="max-w-[25%] min-w-[170px] flex-1">
                 {/* Filter by models */}
@@ -624,29 +651,6 @@ export default function ProductsPage() {
                     }
                     renderInput={(params) => (
                       <TextField {...params} placeholder="Models" />
-                    )}
-                  />
-                )}
-              </div>
-              <div className="max-w-[25%] min-w-[170px] flex-1">
-                {/* Filter by types */}
-                {typeLoading ? (
-                  <LoaderButton />
-                ) : (
-                  <Autocomplete
-                    className="bg-white rounded-md"
-                    fullWidth={true}
-                    size="small"
-                    multiple={true}
-                    disablePortal
-                    value={selectedTypes}
-                    options={types}
-                    getOptionLabel={(option) => option.name}
-                    onChange={(event, newValue) =>
-                      handleSelectTypeChange(event, newValue)
-                    }
-                    renderInput={(params) => (
-                      <TextField {...params} placeholder="Type" />
                     )}
                   />
                 )}
@@ -697,25 +701,54 @@ export default function ProductsPage() {
                   />
                 )}
               </div>
+              <div className="max-w-[25%] min-w-[170px] flex-1">
+                {/* Filter by colors */}
+                {colorLoading ? (
+                  <LoaderButton />
+                ) : (
+                  <Autocomplete
+                    className="bg-white rounded-md"
+                    fullWidth={true}
+                    size="small"
+                    multiple={true}
+                    disablePortal
+                    value={selectedColors}
+                    options={colors}
+                    getOptionLabel={(option) => option.name}
+                    onChange={(event, newValue) =>
+                      handleSelectColorChange(event, newValue)
+                    }
+                    renderInput={(params) => (
+                      <TextField {...params} placeholder="Color" />
+                    )}
+                  />
+                )}
+              </div>
             </div>
           </div>
           <div className="max-w-full overflow-x-auto scrollbar">
             <table className="w-full table-auto">
               <thead>
                 <tr className=" bg-gray-2 text-left dark:bg-meta-4  font-bold">
-                  <th className="min-w-[250px] py-4 px-4 text-black dark:text-blue-gray-50 text-center">
+                  <th className="min-w-[200px] py-4 px-4 text-black dark:text-blue-gray-50">
                     Variant
                   </th>
                   <th className="min-w-[150px] py-4 px-4 text-black dark:text-blue-gray-50">
                     Brand
                   </th>
-                  <th className="w-fit py-4 px-4 text-black dark:text-blue-gray-50 text-center">
+                  <th className="min-w-[150px] py-4 px-4 text-black dark:text-blue-gray-50">
                     Model
+                  </th>
+                  <th className="min-w-[120px] py-4 px-4 text-black dark:text-blue-gray-50">
+                    Type
                   </th>
                   <th className="min-w-[120px] py-4 px-4 text-black dark:text-blue-gray-50">
                     Price
                   </th>
-                  <th className="w-fit py-4 px-4 text-black dark:text-blue-gray-50">
+                  <th className="w-18 py-4 px-4 text-black dark:text-blue-gray-50">
+                    Quantity
+                  </th>
+                  <th className="w-27 py-4 px-4 text-black dark:text-blue-gray-50">
                     Status
                   </th>
                   <th className="py-4 px-4">
@@ -844,9 +877,45 @@ export default function ProductsPage() {
                           </td>
 
                           <td className="py-5 px-4">
+                            <p className="text-black dark:text-blue-gray-50 line-clamp-1">
+                              {product.type.name}
+                            </p>
+                          </td>
+
+                          <td className="py-5 px-4">
                             <p className="text-meta-3 dark:text-blue-gray-50">
                               {product.price.toLocaleString()} đ
                             </p>
+                          </td>
+
+                          <td className="py-5 px-4">
+                            <p className="text-black dark:text-blue-gray-50">
+                              {product.quantity}
+                            </p>
+                          </td>
+
+                          <td className="px-4 py-5">
+                            <div className="flex flex-col justify-center items-center">
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  className="sr-only peer"
+                                  checked={!product.isOnStock}
+                                  onChange={() => handleLockVehicle(product)}
+                                />
+                                <div className="w-11 h-6 bg-success rounded-full dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-blue-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-blue-gray-600 peer-checked:bg-danger"></div>
+                              </label>
+                              <span
+                                className={`mt-1 text-sm rounded-full px-[3px] font-semibold bg-opacity-10 text-black 
+                                ${
+                                  product.isOnStock
+                                    ? "bg-success text-meta-3"
+                                    : "bg-danger text-meta-1"
+                                }`}
+                              >
+                                {product.isOnStock ? "On Stock" : "Disabled"}
+                              </span>
+                            </div>
                           </td>
 
                           <td className="py-5 px-4">
@@ -981,7 +1050,7 @@ export default function ProductsPage() {
             />
           </div>
         </div>
-        {/* {openDetails && (
+        {openDetails && (
           <ProductDetails
             product={selectedProduct}
             onClose={cancelDetailsDialog}
@@ -997,11 +1066,17 @@ export default function ProductsPage() {
 
         {confirmDeleteDiaglog && (
           <ConfirmDeleteDialog
-            objectName={productDeleted.licensePlate}
+            objectName={
+              productDeleted.model.brand.name +
+              " " +
+              productDeleted.model.name +
+              " " +
+              productDeleted.variant
+            }
             actionDelete={() => handleDeleteProduct(productDeleted)}
             cancelDelete={cancelConfirmDeleteDialog}
           />
-        )} */}
+        )}
       </>
     );
 }

@@ -70,6 +70,12 @@ const requests = {
   get: (url: string, params?: URLSearchParams) =>
     axios.get(url, { params }).then(responseBody),
   post: (url: string, body: {}) => axios.post(url, body).then(responseBody),
+  postFormData: (url: string, body: any) => {
+    const headers = body instanceof FormData
+      ? { 'Content-Type': 'multipart/form-data' }
+      : {};
+    return axios.post(url, body, { headers }).then(responseBody);
+  },
   put: (url: string, body: {}) => axios.put(url, body).then(responseBody),
   patch: (url: string, body: {}) => axios.patch(url, body).then(responseBody),
   delete: (url: string) => axios.delete(url).then(responseBody),
@@ -109,7 +115,7 @@ const Color = {
 const Product = {
   list: (params: URLSearchParams) => requests.get("api/product", params),
   details: (id: string) => requests.get(`api/product/${id}`),
-  create: (values: {}) => requests.post("api/product", values),
+  create: (values: FormData) => requests.postFormData("api/product", values),
   update: (id: string, values: {}) => requests.put(`api/product/${id}`, values),
   delete: (id: string) => requests.delete(`api/product/${id}`),
 };
