@@ -8,15 +8,17 @@ export interface Product {
   name: string
   price: number
   description: string
-  createdAt: string
-  isOnStock: string
   variant: string
+  quantity: number
   rating: number
   totalReviews: number
   type: Type
   model: ModelProduct
   color: Color
   images: ImageOfProduct[]
+  createdAt: string
+  isOnStock: boolean
+  lastUpdated: string
 }
 
 export interface ImageOfProduct {
