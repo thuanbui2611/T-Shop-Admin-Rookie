@@ -130,13 +130,20 @@ const Type = {
   delete: (id: string) => requests.delete(`api/type/${id}`),
 };
 
+const Transaction = {
+  list: (params: URLSearchParams) => requests.get("api/transaction", params),
+  details: (id: string) => requests.get(`api/transaction/${id}`),
+  updateStatusTransaction: (id: string, values: {}) => requests.put(`api/transaction/${id}`, values),
+}
+
 const agent = {
   Account,
   Brand,
   ModelProduct,
   Color,
   Product,
-  Type
+  Type,
+  Transaction
 };
 
 export default agent;

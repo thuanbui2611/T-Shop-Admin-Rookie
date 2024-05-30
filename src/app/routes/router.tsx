@@ -11,6 +11,8 @@ import SignIn from "../../pages/account/SignIn";
 import TypePage from "../../pages/type";
 import BrandPage from "../../pages/brand";
 import ProductsPage from "../../pages/product";
+import TransactionPage from "../../pages/transaction";
+import TransactionDetail from "../../pages/transaction/TransactionDetails";
 
 export const router = createBrowserRouter([
   {
@@ -30,6 +32,11 @@ export const router = createBrowserRouter([
               { path: "types", element: <TypePage /> },
               { path: "brands", element: <BrandPage /> },
               { path: "products", element: <ProductsPage /> },
+              { path: "transactions", element: <TransactionPage /> },
+              {
+                path: "transactions/:transactionId",
+                element: <TransactionDetail />,
+              },
             ],
           },
         ],

@@ -7,6 +7,7 @@ import { AccountSlice } from "../../pages/account/AccountSlice";
 import { FilterSlice } from "../../pages/filter/FilterSlice";
 import { BrandSlice } from "../../pages/brand/BrandSlice";
 import { ProductSlice } from "../../pages/product/ProductSlice";
+import { TransactionSlice } from "../../pages/transaction/TransactionSlice";
 
 export const store = configureStore({
   reducer: {
@@ -17,6 +18,7 @@ export const store = configureStore({
     brand: BrandSlice.reducer,
     product: ProductSlice.reducer,
     filter: FilterSlice.reducer,
+    transaction: TransactionSlice.reducer,
   },
 });
 

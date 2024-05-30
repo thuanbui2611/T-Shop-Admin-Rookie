@@ -160,6 +160,7 @@ export default function ProductForm({
       // If there were no previous files, simply use the new FileList
       return files;
     });
+    e.target.files = null;
   };
 
   const removeImageFromList = (file: ImageFile, index: number) => {
