@@ -7,6 +7,7 @@ import {
   import agent from "../../app/api/agent";
   import { MetaData } from "../../app/models/Pagination";
 import { User, UserParams } from "../../app/models/User";
+import { toast } from "react-toastify";
   
   interface UserState {
     user: User | null;
@@ -41,6 +42,18 @@ import { User, UserParams } from "../../app/models/User";
       return ThunkAPI.rejectWithValue({ error: error.data });
     }
   });
+
+  export const LockOrUnlockUserAsync = createAsyncThunk(
+    "user/LockOrUnlockUserAsync",
+    async (data: {userId: string}, ThunkAPI) => {
+      try {
+        await agent.User.lockOrUnlock(data);
+        return data.userId;
+      } catch (error: any) {
+        return ThunkAPI.rejectWithValue({ error: error.data });
+      }
+    }
+  );
 
   function initParams() {
     return {
@@ -93,6 +106,21 @@ import { User, UserParams } from "../../app/models/User";
         .addCase(getUsersAsync.rejected, (state, action) => {
           console.log("Get User rejected: ", action);
           state.userLoaded = false;
+        });
+
+      builder
+        .addCase(LockOrUnlockUserAsync.fulfilled, (state, action) => {
+          const userId = action.payload;
+          const user = state.entities[userId];
+          if(user)
+          {
+            const message = user.isLocked ? "Unlock user successfully!" : "Lock user successfully!";
+            user.isLocked = !user.isLocked;
+            toast.success(message);
+          }
+        })
+        .addCase(LockOrUnlockUserAsync.rejected, (state, action) => {
+          toast.error("Update status user failed!");
         });
     },
   });

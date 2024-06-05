@@ -2,7 +2,12 @@ import { useState, useEffect } from "react";
 import Breadcrumb from "../../app/components/Breadcrumb";
 import Loader from "../../app/components/Loader";
 import { useAppSelector, useAppDispatch } from "../../app/store/ConfigureStore";
-import { getUsersAsync, userSelectors, setUserParams } from "./UserSlice";
+import {
+  getUsersAsync,
+  userSelectors,
+  setUserParams,
+  LockOrUnlockUserAsync,
+} from "./UserSlice";
 import Pagination from "../../app/components/Pagination";
 import "./../../app/assets/css/custom.css";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -83,6 +88,10 @@ export default function UserPage() {
       return prev;
     });
     setIsStartFilter(true);
+  };
+
+  const handleLockUser = async (userId: string) => {
+    await dispatch(LockOrUnlockUserAsync({ userId: userId }));
   };
 
   if (!metaData) {
@@ -172,7 +181,7 @@ export default function UserPage() {
                                 type="checkbox"
                                 className="sr-only peer"
                                 checked={user.isLocked}
-                                //   onChange={}
+                                onChange={() => handleLockUser(user.id)}
                               />
                               <div className="w-11 h-6 bg-success rounded-full dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-blue-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-blue-gray-600 peer-checked:bg-danger"></div>
                             </label>

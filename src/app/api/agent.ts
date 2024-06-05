@@ -88,6 +88,7 @@ const Account = {
 const User = {
   list: (params: URLSearchParams) => requests.get("api/user/list", params),
   details: (id: string) => requests.get(`api/user/${id}`),
+  lockOrUnlock: (values: {}) => requests.post(`api/user/lockOrUnlock`, values),
   update: (id: string, values: {}) => requests.put(`api/user/${id}`, values),
 };
 
@@ -121,6 +122,7 @@ const Product = {
   list: (params: URLSearchParams) => requests.get("api/product", params),
   details: (id: string) => requests.get(`api/product/${id}`),
   create: (values: FormData) => requests.postFormData("api/product", values),
+  lockOrUnlock: (values: {}) => requests.post(`api/product/lockOrUnlock`, values),
   update: (id: string, values: {}) => requests.put(`api/product/${id}`, values),
   delete: (id: string) => requests.delete(`api/product/${id}`),
 };

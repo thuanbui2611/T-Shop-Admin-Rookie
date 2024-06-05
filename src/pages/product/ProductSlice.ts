@@ -76,6 +76,18 @@ import {
     }
   );
 
+  export const LockOrUnlockProductAsync = createAsyncThunk(
+    "product/LockOrUnlockProductAsync",
+    async (data: {productId: string}, ThunkAPI) => {
+      try {
+        await agent.Product.lockOrUnlock(data);
+        return data.productId;
+      } catch (error: any) {
+        return ThunkAPI.rejectWithValue({ error: error.data });
+      }
+    }
+  );
+
   export const updateProductAsync = createAsyncThunk<Product, {formData: FormData, id: string}>(
     "product/updateProductAsync",
     async ({formData, id}, ThunkAPI) => {
@@ -168,6 +180,21 @@ import {
         toast.success("Add product successfully!");
         productsAdapter.addOne(state, action.payload);
       });
+
+      builder
+        .addCase(LockOrUnlockProductAsync.fulfilled, (state, action) => {
+          const productId = action.payload;
+          const product = state.entities[productId];
+          if(product)
+          {
+            const message = product.isOnStock ? "Lock product successfully!" : "Unlock product successfully!";
+            product.isOnStock = !product.isOnStock;
+            toast.success(message);
+          }
+        })
+        .addCase(LockOrUnlockProductAsync.rejected, (state, action) => {
+          toast.error("Update status product failed!");
+        });
 
       builder.addCase(updateProductAsync.fulfilled, (state, action) => {
         toast.success("Update product successfully!");
