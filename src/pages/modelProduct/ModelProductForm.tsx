@@ -114,10 +114,6 @@ export default function ModelProductForm({
                 label="Model name"
                 {...register("name", {
                   required: "Model name is required",
-                  pattern: {
-                    value: /^[a-zA-Z\s]+$/,
-                    message: "Invalid model name",
-                  },
                 })}
               />
               <AppTextInput

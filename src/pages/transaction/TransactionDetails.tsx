@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import { useAppSelector } from "../../app/store/ConfigureStore";
+import { useAppDispatch, useAppSelector } from "../../app/store/ConfigureStore";
 import { useNavigate, useParams } from "react-router-dom";
-import { transactionSelectors } from "./TransactionSlice";
+import {
+  transactionSelectors,
+  updateStatusTransactionAsync,
+} from "./TransactionSlice";
 import agent from "../../app/api/agent";
 import Loader from "../../app/components/Loader";
 import { Transaction } from "../../app/models/Transaction";
@@ -10,18 +13,21 @@ import {
   calculateTotalPaymentOfTransaction,
 } from "../../app/utils/TransactionHelpers";
 import { LoadingButton } from "@mui/lab";
+import ConfirmChangeStatusDialog from "../../app/components/ConfirmChangeStatusDialog";
 
 export default function TransactionDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [transactionDetail, setTransactionDetail] = useState<Transaction>();
-  const [isApproving, setIsApproving] = useState(false);
-  const [isDenying, setIsDenying] = useState(false);
+  const [openConfirmChangeStatusDialog, setOpenConfirmChangeStatusDialog] =
+    useState(false);
+  const [statusToUpdate, setStatusToUpdate] =
+    useState<TransactionStatus | null>(null);
 
-  const navigate = useNavigate();
   const { transactionId } = useParams();
   const transaction = useAppSelector((state) =>
     transactionSelectors.selectById(state, transactionId!)
   );
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (transaction) {
@@ -47,9 +53,22 @@ export default function TransactionDetail() {
 
   const handleSetStatus = async (
     transaction: Transaction,
-    statusToUpdate: string
-  ) => {};
-
+    statusToUpdate: string,
+    reason?: string
+  ) => {
+    var data = {
+      id: transaction.id,
+      status: statusToUpdate,
+      reason: reason ?? "",
+    };
+    debugger;
+    dispatch(updateStatusTransactionAsync(data));
+  };
+  const handleConfirmChangeAction = async (reason?: string) => {
+    await handleSetStatus(transactionDetail!, statusToUpdate!, reason);
+  };
+  const cancelConfirmChangeStatusDialog = () =>
+    setOpenConfirmChangeStatusDialog(false);
   return isLoading ? (
     <Loader />
   ) : (
@@ -77,18 +96,20 @@ export default function TransactionDetail() {
           <div
             className={`font-bold w-fit h-fit py-1 px-2 text-base rounded-full shadow-md ${
               transactionDetail?.status === TransactionStatus.Pending
-                ? "text-blue-600 bg-blue-200"
+                ? "text-blue-600 bg-blue-100"
                 : transactionDetail?.status === TransactionStatus.Canceled
-                ? "text-red-600 bg-red-200"
+                ? "text-red-600 bg-red-100"
                 : transactionDetail?.status === TransactionStatus.InProcess
-                ? "text-orange-based bg-orange-100"
-                : "text-green-600 bg-green-200"
+                ? "text-orange-600 bg-orange-100"
+                : "text-green-600 bg-green-100"
             }`}
           >
-            {transactionDetail?.status}
+            {transactionDetail?.status == "InProcess"
+              ? "In-Process"
+              : transactionDetail?.status}
           </div>
         </div>
-        <div className="mt-10 flex flex-col xl:flex-row jusitfy-center items-stretch w-full xl:space-x-8 space-y-4 md:space-y-6 xl:space-y-0">
+        <div className="mt-10 mb-6 flex flex-col xl:flex-row jusitfy-center items-stretch w-full xl:space-x-8 space-y-4 md:space-y-6 xl:space-y-0">
           <div className="flex flex-col justify-start items-start w-full space-y-4 md:space-y-6 xl:space-y-8">
             <div className="flex flex-col justify-start items-start bg-white dark:bg-blue-gray-50 btransaction btransaction-white/50 rounded-lg shadow-md px-4 py-4 md:py-6 md:p-6 xl:p-8 w-full max-h-[30rem] scrollbar overflow-auto">
               {transactionDetail?.order.orderDetails.map((orderDetail) => (
@@ -264,37 +285,62 @@ export default function TransactionDetail() {
           {transactionDetail?.status.trim().toLowerCase() ===
             TransactionStatus.Pending.toLocaleLowerCase() && (
             <LoadingButton
-              loading={isApproving}
-              disabled={isApproving || isDenying}
-              type="submit"
               variant="contained"
               color="primary"
               sx={{ fontWeight: 600, width: "100px" }}
-              onClick={() =>
-                handleSetStatus(transactionDetail, TransactionStatus.InProcess)
-              }
+              onClick={() => {
+                setStatusToUpdate(TransactionStatus.InProcess);
+                setOpenConfirmChangeStatusDialog(true);
+              }}
             >
               Approve
+            </LoadingButton>
+          )}
+          {transactionDetail?.status.trim().toLowerCase() ===
+            TransactionStatus.InProcess.toLocaleLowerCase() && (
+            <LoadingButton
+              variant="contained"
+              color="success"
+              sx={{ fontWeight: 600, width: "100px" }}
+              onClick={() => {
+                setStatusToUpdate(TransactionStatus.Completed);
+                setOpenConfirmChangeStatusDialog(true);
+              }}
+            >
+              Complete
             </LoadingButton>
           )}
           {transactionDetail?.status.trim().toLowerCase() !==
             TransactionStatus.Canceled.toLocaleLowerCase() && (
             <LoadingButton
-              loading={isDenying}
-              disabled={isApproving || isDenying}
               type="submit"
               variant="contained"
               color="error"
               sx={{ fontWeight: 600, width: "100px" }}
-              onClick={() =>
-                handleSetStatus(transactionDetail!, TransactionStatus.Canceled)
-              }
+              onClick={() => {
+                setStatusToUpdate(TransactionStatus.Canceled);
+                setOpenConfirmChangeStatusDialog(true);
+              }}
             >
               Deny
             </LoadingButton>
           )}
         </div>
       </div>
+
+      {openConfirmChangeStatusDialog && (
+        <ConfirmChangeStatusDialog
+          action={handleConfirmChangeAction}
+          actionName={
+            statusToUpdate == TransactionStatus.Canceled
+              ? "Deny"
+              : statusToUpdate == TransactionStatus.Completed
+              ? "Complete"
+              : "Approve"
+          }
+          onClose={cancelConfirmChangeStatusDialog}
+        />
+      )}
     </>
   );
 }

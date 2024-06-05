@@ -4,10 +4,14 @@ import {
   CardHeader,
   CardBody,
   Typography,
+  Button,
 } from "@material-tailwind/react";
 import { Product } from "../../app/models/Product";
 import { LoadingButton } from "@mui/lab";
 import { ConvertToDateStr } from "../../app/utils/ConvertDatetimeToDate";
+import { SlideshowLightbox } from "lightbox.js-react";
+import "lightbox.js-react/dist/index.css";
+import { useEffect, useState } from "react";
 
 interface Props {
   product: Product | null;
@@ -15,6 +19,15 @@ interface Props {
 }
 
 export default function ProductDetails({ product, onClose }: Props) {
+  const [openImage, setOpenImage] = useState<number>();
+  const [openSlideShow, setOpenSlideShow] = useState(false);
+
+  useEffect(() => {
+    if (openImage || openImage === 0) {
+      setOpenSlideShow(true);
+    }
+  }, [openImage]);
+
   return (
     <>
       <Dialog
@@ -59,12 +72,14 @@ export default function ProductDetails({ product, onClose }: Props) {
                 <div>
                   <div className="flex border-b border-gray-200   items-stretch justify-start w-full h-full px-4 mb-8 md:flex-row xl:flex-col md:space-x-6 lg:space-x-8 xl:space-x-0">
                     <div className="flex items-start justify-start flex-shrink-0">
-                      <div className="flex items-center justify-center w-full pb-6 space-x-4 md:justify-start">
-                        {product?.images.map((image) => (
+                      <div className="flex items-center justify-center w-full pb-6 space-x-4 flex-wrap gap-1">
+                        {product?.images.map((image, index) => (
                           <img
+                            key={index}
                             src={image.imageUrl || undefined}
-                            className="object-cover w-30 h-30 rounded-md inline-block relative object-center shadow-lg shadow-blue-gray-500/40"
+                            className="object-cover w-30 h-30 rounded-md inline-block relative object-center shadow-lg shadow-blue-gray-500/40 cursor-pointer hover:brightness-75"
                             alt="Product image"
+                            onClick={() => setOpenImage(index)}
                           />
                         ))}
                       </div>
@@ -132,7 +147,7 @@ export default function ProductDetails({ product, onClose }: Props) {
                               Price:
                             </p>
                             <p className="ml-1 text-base leading-4 break-all text-meta-3">
-                              {product?.price.toLocaleString() + " đ"}
+                              ${product?.price.toLocaleString()}
                             </p>
                           </div>
                         </div>
@@ -203,10 +218,38 @@ export default function ProductDetails({ product, onClose }: Props) {
                         </div>
                       </div>
                     </div>
+                    <SlideshowLightbox
+                      startingSlideIndex={openImage}
+                      className="container grid grid-cols-3 gap-2 mx-auto"
+                      showThumbnails={true}
+                      open={openSlideShow}
+                      onClose={() => {
+                        setOpenImage(undefined);
+                        setOpenSlideShow(false);
+                      }}
+                    >
+                      {product?.images.map((image, index) => (
+                        <img
+                          className="w-full rounded hidden"
+                          src={image.imageUrl || undefined}
+                          key={index}
+                        />
+                      ))}
+                    </SlideshowLightbox>
                   </div>
                 </div>
               </div>
             </section>
+            <div className=" text-center pb-4">
+              <Button
+                variant="gradient"
+                color="red"
+                size="lg"
+                onClick={onClose}
+              >
+                Close
+              </Button>
+            </div>
           </CardBody>
         </Card>
       </Dialog>

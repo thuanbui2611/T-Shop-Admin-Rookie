@@ -884,7 +884,7 @@ export default function ProductsPage() {
 
                           <td className="py-5 px-4">
                             <p className="text-meta-3 dark:text-blue-gray-50">
-                              {product.price.toLocaleString()} đ
+                              ${product.price.toLocaleString()}
                             </p>
                           </td>
 

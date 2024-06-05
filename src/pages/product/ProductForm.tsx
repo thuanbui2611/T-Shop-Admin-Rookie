@@ -17,6 +17,8 @@ import {
   getTypesAsync,
 } from "../filter/FilterSlice";
 import { Type } from "../../app/models/Type";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 interface Props {
   product: Product | null;
@@ -35,8 +37,6 @@ export default function ProductForm({
   actionName,
 }: Props) {
   const [imagesDefault, setImagesDefault] = useState<ImageOfProduct[]>([]);
-  //   ImageOfProduct[]
-  //   >([]);
   const [imagesSelected, setImagesSelected] = useState<ImageFile[] | null>(
     null
   );
@@ -47,6 +47,7 @@ export default function ProductForm({
   const [modelsOfBrand, setModelsOfBrand] = useState<ModelOfBrand[]>([]);
   const [selectedModel, setSelectedModel] = useState<ModelOfBrand | null>(null);
   const [selectedColor, setSelectedColor] = useState<Color | null>(null);
+  const [description, setDescription] = useState<string>("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -59,6 +60,26 @@ export default function ProductForm({
     mode: "all",
   });
 
+  //ReactQuill
+  const modules = {
+    toolbar: [
+      [{ header: "1" }, { header: "2" }, { font: [] }],
+      [{ size: [] }],
+      ["bold", "italic", "underline", "strike", "blockquote"],
+      [
+        { list: "ordered" },
+        { list: "bullet" },
+        [{ script: "super" }, { script: "sub" }],
+        { indent: "-1" },
+        { indent: "+1" },
+      ],
+      ["direction", { align: [] }],
+      ["link", "image", "video", "formula"],
+      [{ color: [] }, { background: [] }],
+      ["clean"],
+    ],
+  };
+
   const dispatch = useAppDispatch();
 
   const { brands, brandLoading, types, typeLoading, colors, colorLoading } =
@@ -69,6 +90,7 @@ export default function ProductForm({
       const productDetails = { ...product };
       reset(productDetails);
 
+      setDescription(product.description);
       //get images and set selected images
       const defaultImage: ImageFile[] = product.images.map((image) => ({
         url: image.imageUrl,
@@ -207,7 +229,10 @@ export default function ProductForm({
     setSelectedBrand(newValue);
     if (newValue.models.length > 0) {
       setModelsOfBrand(newValue.models);
+    } else {
+      setModelsOfBrand([]);
     }
+    setSelectedModel(null);
   };
 
   const handleTypeChange = (
@@ -243,7 +268,12 @@ export default function ProductForm({
     try {
       //Check images
       if (imagesDefault.length === 0 && !selectedFiles) {
-        toast.error("Product need at least one image");
+        toast.error("Product need at least one image!");
+        return;
+      }
+      //Check description
+      if (!description) {
+        toast.error("Product need a description!");
         return;
       }
       //create form
@@ -254,7 +284,7 @@ export default function ProductForm({
         variant: data.variant,
         price: data.price,
         quantity: data.quantity,
-        description: data.description,
+        description: description,
       };
 
       const formData = new FormData();
@@ -263,7 +293,6 @@ export default function ProductForm({
         formData.append(key, value);
       });
       //append list Current image
-      debugger;
       if (imagesDefault.length !== 0) {
         formData.append("images", JSON.stringify(imagesDefault));
       }
@@ -286,7 +315,7 @@ export default function ProductForm({
         //Add product
         await dispatch(addProductAsync(formData));
       }
-      cancelEdit();
+      // cancelEdit();
     } catch (error) {
       console.log("Error when submit form:", error);
     }
@@ -464,21 +493,20 @@ export default function ProductForm({
                 />
               </div>
             </div>
-            <div>
-              <label className="block mb-2 text-sm font-semibold text-black">
-                Description
-              </label>
-              <AppTextInput
-                label=""
-                control={control}
-                size="medium"
-                type="text"
-                placeholder="This is a lastest car..."
-                {...register("description", {
-                  required: "Description is required",
-                })}
-              />
-            </div>
+          </div>
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-black">
+              Description
+            </label>
+            <ReactQuill
+              className=" pb-16"
+              value={description}
+              onChange={(data) => setDescription(data)}
+              theme="snow"
+              modules={modules}
+              placeholder="Enter content here"
+              style={{ height: 200 }}
+            />
           </div>
           <div className="mb-1">
             <label className="block text-sm font-semibold text-black">
