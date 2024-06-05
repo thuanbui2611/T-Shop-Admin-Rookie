@@ -48,7 +48,7 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right sm:block">
           <span className="block text-sm font-semibold text-black dark:text-blue-gray-50 line-clamp-1">
-            {user ? user.name : "Not login"}
+            {user ? user.fullName : "Not login"}
           </span>
           <span className="block text-xs font-semibold">
             {user ? user.role : "Not login"}
@@ -97,10 +97,8 @@ const DropdownUser = () => {
       >
         <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-3 dark:border-strokedark  md:hidden">
           <li className="block md:hidden">
-            <p className="font-semibold text-base">
-              {user?.name} Bui Cong THuan
-            </p>
-            <p className="font-semibold text-sm">{user?.role} Admin</p>
+            <p className="font-semibold text-base">{user?.fullName}</p>
+            <p className="font-semibold text-sm">{user?.role}</p>
           </li>
           {/* <li>
             <Link
