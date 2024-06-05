@@ -82,8 +82,13 @@ const requests = {
 };
 
 const Account = {
-  login: (values: {}) => requests.post("api/authentication/register", values),
-  register: (values: {}) => requests.post("api/authentication/login", values),
+  login: (values: {}) => requests.post("api/authentication/login", values),
+};
+
+const User = {
+  list: (params: URLSearchParams) => requests.get("api/user/list", params),
+  details: (id: string) => requests.get(`api/user/${id}`),
+  update: (id: string, values: {}) => requests.put(`api/user/${id}`, values),
 };
 
 const Brand = {
@@ -143,7 +148,8 @@ const agent = {
   Color,
   Product,
   Type,
-  Transaction
+  Transaction,
+  User
 };
 
 export default agent;

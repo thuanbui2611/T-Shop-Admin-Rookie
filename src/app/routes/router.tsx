@@ -13,6 +13,7 @@ import BrandPage from "../../pages/brand";
 import ProductsPage from "../../pages/product";
 import TransactionPage from "../../pages/transaction";
 import TransactionDetail from "../../pages/transaction/TransactionDetails";
+import UserPage from "../../pages/user";
 
 export const router = createBrowserRouter([
   {
@@ -20,7 +21,7 @@ export const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        // element: <RequireAuth roles={["Admin"]} />,
+        element: <RequireAuth roles={["Admin"]} />,
         children: [
           {
             element: <DefaultLayout />,
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
               { path: "brands", element: <BrandPage /> },
               { path: "products", element: <ProductsPage /> },
               { path: "transactions", element: <TransactionPage /> },
+              { path: "users", element: <UserPage /> },
               {
                 path: "transactions/:transactionId",
                 element: <TransactionDetail />,
