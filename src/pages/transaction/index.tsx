@@ -180,16 +180,15 @@ export default function TransactionPage() {
                         </td>
                         <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark max-w-45">
                           <h5 className="font-medium text-black whitespace-normal overflow-wrap-normal">
-                            {new Date(transaction.createdAt).toLocaleString(
-                              [],
-                              {
-                                year: "numeric",
-                                month: "2-digit",
-                                day: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
+                            {new Date(
+                              transaction.createdAt + "Z"
+                            ).toLocaleString([], {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
                           </h5>
                         </td>
                       </tr>

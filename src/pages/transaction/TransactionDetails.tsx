@@ -24,32 +24,19 @@ export default function TransactionDetail() {
     useState<TransactionStatus | null>(null);
 
   const { transactionId } = useParams();
-  const transaction = useAppSelector((state) =>
-    transactionSelectors.selectById(state, transactionId!)
-  );
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (transaction) {
-      setTransactionDetail(transaction);
-      setIsLoading(false);
-    }
-  }, [transaction]);
-
-  useEffect(() => {
-    if (!transaction && transactionId && !transaction) {
-      debugger;
-      setIsLoading(true);
+    if (transactionId) {
       agent.Transaction.details(transactionId).then((response) => {
-        debugger;
         if (response) {
-          debugger;
           setTransactionDetail(response);
         }
         setIsLoading(false);
       });
     }
-  }, [transaction, transactionId]);
+  }, [transactionId]);
 
   const handleSetStatus = async (
     transaction: Transaction,
@@ -157,10 +144,10 @@ export default function TransactionDetail() {
 
                       <div className="w-full md:w-1/4 flex-1 flex justify-end space-x-8 items-end">
                         <p className="text-base xl:text-lg font-semibold leading-6 text-green-600">
+                          $
                           {(
                             orderDetail.price * orderDetail.quantity
                           ).toLocaleString()}{" "}
-                          VND
                         </p>
                       </div>
                     </div>
@@ -176,10 +163,10 @@ export default function TransactionDetail() {
                     Total
                   </p>
                   <p className="text-lg font-bold leading-4 text-green-600">
+                    $
                     {calculateTotalPaymentOfTransaction(
                       transactionDetail!.order.orderDetails
                     )}{" "}
-                    VND
                   </p>
                 </div>
               </div>
@@ -194,12 +181,12 @@ export default function TransactionDetail() {
                 <div className="flex justify-center w-full md:justify-start items-center space-x-3 py-8 btransaction-b btransaction-gray-200">
                   <img
                     className="rounded-full w-12 h-12 shadow-lg"
-                    src=""
+                    src={transactionDetail?.user.avatar || ""}
                     alt="Customer Avatar"
                   />
                   <div className="flex justify-start items-start flex-col space-y-2">
                     <p className="text-base font-semibold leading-4 text-left text-black/90">
-                      Customer Nameee
+                      {transactionDetail?.user.fullName}
                     </p>
                   </div>
                 </div>
@@ -228,7 +215,7 @@ export default function TransactionDetail() {
                       </g>
                     </svg>
                     <p className="cursor-pointer text-sm leading-5 text-blue-500 hover:underline">
-                      Customer emaill
+                      {transactionDetail?.user.email}
                     </p>
                   </div>
                   <div className="flex space-x-2">
@@ -252,7 +239,7 @@ export default function TransactionDetail() {
                       </g>
                     </svg>
                     <p className="cursor-pointer text-sm leading-5 text-black/90">
-                      Customer phone
+                      {transactionDetail?.user.phoneNumber}
                     </p>
                   </div>
                 </div>
@@ -264,7 +251,7 @@ export default function TransactionDetail() {
                       Customer Address
                     </p>
                     <p className="w-full text-center font-semibold md:text-left text-sm leading-5 text-black/90">
-                      Customer address
+                      {transactionDetail?.user.address}
                     </p>
                   </div>
                   <div className="flex w-full justify-center md:justify-start items-center md:items-start flex-col space-y-4 btransaction-t pt-5">
@@ -272,7 +259,7 @@ export default function TransactionDetail() {
                       Shipping Address
                     </p>
                     <p className="w-full text-center font-semibold md:text-left text-sm leading-5 text-black/90">
-                      {transaction?.order.shippingAddress}
+                      {transactionDetail?.order.shippingAddress}
                     </p>
                   </div>
                 </div>
@@ -311,20 +298,22 @@ export default function TransactionDetail() {
             </LoadingButton>
           )}
           {transactionDetail?.status.trim().toLowerCase() !==
-            TransactionStatus.Canceled.toLocaleLowerCase() && (
-            <LoadingButton
-              type="submit"
-              variant="contained"
-              color="error"
-              sx={{ fontWeight: 600, width: "100px" }}
-              onClick={() => {
-                setStatusToUpdate(TransactionStatus.Canceled);
-                setOpenConfirmChangeStatusDialog(true);
-              }}
-            >
-              Deny
-            </LoadingButton>
-          )}
+            TransactionStatus.Canceled.toLocaleLowerCase() &&
+            transactionDetail?.status.trim().toLowerCase() !==
+              TransactionStatus.Completed.toLocaleLowerCase() && (
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                color="error"
+                sx={{ fontWeight: 600, width: "100px" }}
+                onClick={() => {
+                  setStatusToUpdate(TransactionStatus.Canceled);
+                  setOpenConfirmChangeStatusDialog(true);
+                }}
+              >
+                Deny
+              </LoadingButton>
+            )}
         </div>
       </div>
 
